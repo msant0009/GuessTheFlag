@@ -14,7 +14,12 @@ struct ContentView: View {
      
     @State private var showingScore = false
     @State private var scoreTitle = ""
-          
+    @State private var score = 0
+    @State private var questionCount = 0
+    @State private var maxQuestionReached = false
+    @State private var questionMax = "Max number of questions reached"
+    
+         
     var body: some View {
         ZStack{
             //  LinearGradient(colors: [.blue,.gray],startPoint: .top, endPoint: .bottom)
@@ -60,7 +65,7 @@ struct ContentView: View {
                 Spacer()
                 Spacer()
                 
-                Text("Score: ???")
+                Text("Score: \(score)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
                 
@@ -69,11 +74,14 @@ struct ContentView: View {
             }
             .padding()
         }
+        .alert(questionMax, isPresented: $maxQuestionReached){
+        Button("Reset Game", action: resetGame)
+            }
         .alert(scoreTitle, isPresented: $showingScore){
-            Button("Continue", action: askQustion)
+            Button("Continue", action: askQuestion)
                 
             } message: {
-                Text("Your score is ??")
+                Text("Your score is \(score)")
             }
         }
     
@@ -81,16 +89,35 @@ struct ContentView: View {
     func flagTapped(_ number: Int) {
         if number == correctAnswer{
             scoreTitle = "Correct"
+            score += 1
         } else {
-            scoreTitle = "Wrong"
+            scoreTitle = "Wrong, the correct answer is: \(countries[correctAnswer])"
+            if score > 0{
+                score -= 1
+            }
+            
         }
         
         showingScore = true
+        questionCount += 1
     }
  
-    func askQustion() {
+    func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        if questionCount == 7 {
+            maxQuestionReached = true
+        } else {
+            maxQuestionReached = false
+        }
+    }
+    
+    
+    func resetGame() {
+        score = 0
+        countries.shuffle()
+        questionCount = 0
+        
     }
         
 }
